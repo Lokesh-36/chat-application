@@ -1,0 +1,21 @@
+version: '3'
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./backend:/app
+    environment:
+      - MONGO_URI=mongodb+srv://lokeshakera2002:WHFvUXEvDC0d20wm@cluster0.d7tot82.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+      - NODE_ENV=development
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules # Prevents overwriting container's node_modules
+    depends_on:
+      - backend
