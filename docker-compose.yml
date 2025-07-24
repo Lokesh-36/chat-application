@@ -4,8 +4,8 @@ services:
     build: ./backend
     ports:
       - "5001:5001"
-    volumes:
-      - ./backend:/app
+    # volumes:
+      # - ./backend:/app
     environment:
       - MONGO_URI=mongodb+srv://lokeshakera2002:WHFvUXEvDC0d20wm@cluster0.d7tot82.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
       - NODE_ENV=development
