@@ -1,16 +1,12 @@
-FROM node:20
-
+# frontend/Dockerfile
+FROM node:20 as builder
 WORKDIR /app
-
-# Copy package files first
 COPY package*.json ./
-
-# Install dependencies cleanly
-RUN rm -rf node_modules && npm install
-
-# Now copy the rest of the project
+RUN npm install
 COPY . .
+RUN npm run build
 
-EXPOSE 5173
-
-CMD ["npm", "run", "dev"]
+FROM nginx:alpine
+COPY --from=builder /app/dist /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
