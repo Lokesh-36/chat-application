@@ -1,8 +1,9 @@
 import User from "../models/user.model.js";
 import Message from "../models/message.model.js";
 
-import cloudinary from "../lib/cloudinary.js";
+import { uploadBase64ToS3 } from "../lib/s3.js";  // S3 logic
 import { getReceiverSocketId, io } from "../lib/socket.js";
+import logger from "../lib/logger.js"; // Winston logger
 
 export const getUsersForSidebar = async (req, res) => {
   try {
@@ -11,7 +12,7 @@ export const getUsersForSidebar = async (req, res) => {
 
     res.status(200).json(filteredUsers);
   } catch (error) {
-    console.error("Error in getUsersForSidebar: ", error.message);
+    logger.error("Error in getUsersForSidebar: " + error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
@@ -30,7 +31,7 @@ export const getMessages = async (req, res) => {
 
     res.status(200).json(messages);
   } catch (error) {
-    console.log("Error in getMessages controller: ", error.message);
+    logger.error("Error in getMessages controller: " + error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
@@ -43,9 +44,7 @@ export const sendMessage = async (req, res) => {
 
     let imageUrl;
     if (image) {
-      // Upload base64 image to cloudinary
-      const uploadResponse = await cloudinary.uploader.upload(image);
-      imageUrl = uploadResponse.secure_url;
+      imageUrl = await uploadBase64ToS3(image); // 👈 Upload to S3
     }
 
     const newMessage = new Message({
@@ -64,7 +63,7 @@ export const sendMessage = async (req, res) => {
 
     res.status(201).json(newMessage);
   } catch (error) {
-    console.log("Error in sendMessage controller: ", error.message);
+    logger.error("Error in sendMessage controller: " + error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };

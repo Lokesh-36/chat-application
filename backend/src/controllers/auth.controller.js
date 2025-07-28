@@ -1,7 +1,8 @@
 import { generateToken } from "../lib/utils.js";
 import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
-import cloudinary from "../lib/cloudinary.js";
+import { uploadBase64ToS3 } from "../lib/s3.js"; // ✅ import AWS S3 upload function
+import logger from "../lib/logger.js";
 
 export const signup = async (req, res) => {
   const { fullName, email, password } = req.body;
@@ -28,7 +29,6 @@ export const signup = async (req, res) => {
     });
 
     if (newUser) {
-      // generate jwt token here
       generateToken(newUser._id, res);
       await newUser.save();
 
@@ -53,16 +53,19 @@ export const login = async (req, res) => {
     const user = await User.findOne({ email });
 
     if (!user) {
+      logger.error("Invalid credentials");
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
     const isPasswordCorrect = await bcrypt.compare(password, user.password);
     if (!isPasswordCorrect) {
+      logger.error("Invalid credentials");
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
     generateToken(user._id, res);
 
+    logger.info("Login successfully");
     res.status(200).json({
       _id: user._id,
       fullName: user.fullName,
@@ -70,7 +73,7 @@ export const login = async (req, res) => {
       profilePic: user.profilePic,
     });
   } catch (error) {
-    console.log("Error in login controller", error.message);
+    logger.error("Error in login controller", error.message);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
@@ -80,7 +83,7 @@ export const logout = (req, res) => {
     res.cookie("jwt", "", { maxAge: 0 });
     res.status(200).json({ message: "Logged out successfully" });
   } catch (error) {
-    console.log("Error in logout controller", error.message);
+    console.error("Error in logout controller", error.message);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
@@ -94,15 +97,18 @@ export const updateProfile = async (req, res) => {
       return res.status(400).json({ message: "Profile pic is required" });
     }
 
-    const uploadResponse = await cloudinary.uploader.upload(profilePic);
+    const fileName = `profile_${userId}_${Date.now()}.jpg`; // or extract extension if needed
+    const uploadedUrl = await uploadBase64ToS3(profilePic, fileName);
+
     const updatedUser = await User.findByIdAndUpdate(
       userId,
-      { profilePic: uploadResponse.secure_url },
+      { profilePic: uploadedUrl },
       { new: true }
     );
 
     res.status(200).json(updatedUser);
   } catch (error) {
+    logger.error("error in update profile:", error);
     console.log("error in update profile:", error);
     res.status(500).json({ message: "Internal server error" });
   }

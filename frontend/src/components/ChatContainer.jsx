@@ -21,7 +21,6 @@ const ChatContainer = () => {
 
   useEffect(() => {
     getMessages(selectedUser._id);
-
     subscribeToMessages();
 
     return () => unsubscribeFromMessages();
@@ -54,7 +53,7 @@ const ChatContainer = () => {
             className={`chat ${message.senderId === authUser._id ? "chat-end" : "chat-start"}`}
             ref={messageEndRef}
           >
-            <div className=" chat-image avatar">
+            <div className="chat-image avatar">
               <div className="size-10 rounded-full border">
                 <img
                   src={
@@ -66,19 +65,36 @@ const ChatContainer = () => {
                 />
               </div>
             </div>
+
             <div className="chat-header mb-1">
               <time className="text-xs opacity-50 ml-1">
                 {formatMessageTime(message.createdAt)}
               </time>
             </div>
+
             <div className="chat-bubble flex flex-col">
-              {message.image && (
+              {/* Check if image URL is valid image format */}
+              {message.image && message.image.match(/\.(jpeg|jpg|png|gif|webp)$/i) && (
                 <img
                   src={message.image}
-                  alt="Attachment"
+                  alt="Image"
                   className="sm:max-w-[200px] rounded-md mb-2"
                 />
               )}
+
+              {/* If not an image, show as downloadable file */}
+              {message.image && !message.image.match(/\.(jpeg|jpg|png|gif|webp)$/i) && (
+                <a
+                  href={message.image}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-blue-500 underline flex items-center gap-1 mb-2"
+                >
+                  📎 {message.image.split("/").pop()}
+                </a>
+              )}
+
+              {/* Text message */}
               {message.text && <p>{message.text}</p>}
             </div>
           </div>
@@ -89,4 +105,5 @@ const ChatContainer = () => {
     </div>
   );
 };
+
 export default ChatContainer;

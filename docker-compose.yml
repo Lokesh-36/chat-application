@@ -4,22 +4,15 @@ services:
     build: ./backend
     ports:
       - "5001:5001"
-    # volumes:
-      # - ./backend:/app
-    environment:
-      - MONGO_URI=mongodb+srv://lokeshakera2002:WHFvUXEvDC0d20wm@cluster0.d7tot82.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
-      - NODE_ENV=development
-      - JWT_SECRET=djhbfvdshjbeerff
-      - CLOUDINARY_CLOUD_NAME=da4mvzds5
-      - CLOUDINARY_API_KEY=697816152871815
-      - CLOUDINARY_API_SECRET=bEl3XcgLOQQ9FV6BRZLNfdPY8rQ
+    env_file:
+      - ./backend/.env
 
   frontend:
     build: ./frontend
     ports:
-      - "5173:5173"
+      - "5174:5173"
     volumes:
       - ./frontend:/app
-      - /app/node_modules # Prevents overwriting container's node_modules
+      - /app/node_modules
     depends_on:
       - backend

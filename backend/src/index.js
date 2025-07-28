@@ -14,11 +14,12 @@ dotenv.config();
 const PORT = process.env.PORT;
 const __dirname = path.resolve();
 
-app.use(express.json());
+app.use(express.json({ limit: "25mb" }));
+app.use(express.urlencoded({ extended: true, limit: "25mb" }));
 app.use(cookieParser());
 
 const allowedOrigins = [
-  "http://localhost:5173",
+  "http://localhost:5174",
   "https://chat-app-frontend.vercel.app",
   "https://chat-app-frontend-git-main-lokesh-36s-projects.vercel.app",
   "https://chat-app-frontend-three-liard.vercel.app",
