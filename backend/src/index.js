@@ -19,7 +19,7 @@ app.use(express.urlencoded({ extended: true, limit: "25mb" }));
 app.use(cookieParser());
 
 const allowedOrigins = [
-  "http://localhost:5174",
+  "http://13.60.180.235:5174",
   "https://chat-app-frontend.vercel.app",
   "https://chat-app-frontend-git-main-lokesh-36s-projects.vercel.app",
   "https://chat-app-frontend-three-liard.vercel.app",
