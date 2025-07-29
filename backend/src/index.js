@@ -14,10 +14,6 @@ dotenv.config();
 const PORT = process.env.PORT;
 const __dirname = path.resolve();
 
-app.use(express.json({ limit: "25mb" }));
-app.use(express.urlencoded({ extended: true, limit: "25mb" }));
-app.use(cookieParser());
-
 const allowedOrigins = [
   "http://13.60.180.235",
   "http://13.60.180.235:80",
@@ -39,6 +35,10 @@ app.use(
     credentials: true,
   })
 );
+
+app.use(express.json({ limit: "25mb" }));
+app.use(express.urlencoded({ extended: true, limit: "25mb" }));
+app.use(cookieParser());
 
 // API routes
 app.use("/api/auth", authRoutes);
